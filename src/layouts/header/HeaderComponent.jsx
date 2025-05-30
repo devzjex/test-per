@@ -380,6 +380,195 @@ const HeaderComponent = ({
     return paths.includes(currentKey);
   };
 
+  const menuItemsLogo = [
+    {
+      key: 'homepage',
+      label: (
+        <MyLink href="/">
+          <Image
+            src="/image/logo_update.webp"
+            className={styles.imgResponsive}
+            alt="Logo"
+            width={75}
+            height={45}
+            fetchPriority="high"
+            priority={true}
+            loading="eager"
+          />
+        </MyLink>
+      ),
+      onClick: onClickHomepage,
+      className: styles.logItem,
+    },
+  ];
+
+  const menuItemsNavbar = [
+    {
+      key: 'apps',
+      label: (
+        <Dropdown placement="bottom" overlay={popupSubmenu} arrow>
+          <MyLink
+            href="/dashboard"
+            className={`${styles.menuLink} ${
+              isActive(currentKey, [
+                '/dashboard',
+                '/categories',
+                '/collections',
+                '/top-new-apps',
+                '/delisted-deleted',
+                '/integrations',
+                '/dashboard/top-apps',
+                '/top-reviewed',
+                '/growth-apps',
+                '/growth_review',
+                '/growth_rate',
+                '/installation_growth_rate',
+              ])
+                ? styles.active
+                : ''
+            }`}
+            onClick={() => handleClickMenuItem('/dashboard')}
+            id="step1"
+          >
+            <span style={{ textAlign: 'center' }}>
+              Apps <CaretDownOutlined style={{ marginLeft: '5px' }} />
+            </span>
+          </MyLink>
+        </Dropdown>
+      ),
+      className: styles.menuItemDetail,
+    },
+    {
+      key: 'compare-apps',
+      label: (
+        <MyLink
+          href="/#compare"
+          className={`${styles.menuLink} ${currentKey === '/#compare' ? styles.active : ''}`}
+          onClick={() => handleClickMenuItem('/#compare')}
+        >
+          Compare Apps
+        </MyLink>
+      ),
+      className: styles.menuItemDetail,
+    },
+    {
+      key: 'insights',
+      label: (
+        <Dropdown
+          placement="bottom"
+          overlay={insightSubmenu}
+          arrow
+          visible={isDropdownVisibleInsights}
+          onVisibleChange={handleInsightsDropdownVisibleChange}
+        >
+          <span
+            className={`${styles.menuLink} ${
+              isActive(currentKey, ['/developers', '/dashboard/reviews']) ? styles.active : ''
+            }`}
+          >
+            Insights
+            <CaretDownOutlined style={{ marginLeft: '5px' }} />
+          </span>
+        </Dropdown>
+      ),
+      className: styles.menuItemDetail,
+    },
+    {
+      key: 'resources',
+      label: (
+        <Dropdown placement="bottom" overlay={resourceSubmenu} arrow>
+          <span className={`${styles.menuLink} ${currentKey === '/blogs' ? styles.active : ''}`}>
+            Resources
+            <CaretDownOutlined style={{ marginLeft: '5px' }} />
+          </span>
+        </Dropdown>
+      ),
+      className: styles.menuItemDetail,
+    },
+    {
+      key: 'watching-apps',
+      label: (
+        <MyLink
+          href="/watching-apps"
+          className={`${styles.menuLink} ${currentKey === '/watching-apps' ? styles.active : ''}`}
+          onClick={() => handleClickMenuItem('/watching-apps')}
+        >
+          Watching
+        </MyLink>
+      ),
+      className: styles.menuItemDetail,
+    },
+    // Các mục có điều kiện token và accessStore
+    ...(token && accessStore
+      ? [
+          {
+            key: 'explore-store',
+            label: (
+              <MyLink
+                href="/explore-store"
+                className={`${styles.menuLink} ${currentKey === '/explore-store' ? styles.active : ''}`}
+                onClick={() => handleClickMenuItem('/explore-store')}
+              >
+                Explore Store
+              </MyLink>
+            ),
+            className: styles.menuItemDetail,
+          },
+        ]
+      : []),
+    ...(token
+      ? [
+          {
+            key: 'my-apps',
+            label: (
+              <Dropdown placement="bottom" overlay={popupMyApp} arrow>
+                <span className={styles.menuLink} id="step6">
+                  My Apps
+                </span>
+              </Dropdown>
+            ),
+            className: styles.menuItemDetail,
+          },
+        ]
+      : []),
+    {
+      key: 'search',
+      label: isShowSearch ? (
+        <Dropdown overlay={listAppsSearch} trigger={['click']} placement="bottom">
+          <Input
+            placeholder="Application name"
+            className={styles.searchData}
+            onChange={onSearchApps}
+            onClick={(e) => e.stopPropagation()}
+            suffix={loadingSearch ? <LoadingOutlined /> : <></>}
+            onPressEnter={(e) => handleSeeAllResults(e.target.value)}
+          />
+        </Dropdown>
+      ) : (
+        <>
+          <SearchOutlined
+            className={styles.searchIcon}
+            onClick={(e) => {
+              setIsShowSearch(true);
+              e.stopPropagation();
+            }}
+          />
+          <div
+            className={styles.searchText}
+            onClick={(e) => {
+              setIsShowSearch(true);
+              e.stopPropagation();
+            }}
+          >
+            Search
+          </div>
+        </>
+      ),
+      className: styles.menuItemSearch,
+      onClick: handleMenuItemClick,
+    },
+  ];
+
   return (
     <>
       <Header className={styles.sasiLayoutBackground}>
@@ -387,22 +576,7 @@ const HeaderComponent = ({
           <div className={styles.menuSasi}>
             <div className={styles.menuContent}>
               <div className={styles.logoSasi}>
-                <Menu className={styles.menuLogo}>
-                  <Menu.Item key="homepage" onClick={onClickHomepage} className={styles.logItem}>
-                    <MyLink href={'/'}>
-                      <Image
-                        src="/image/logo_update.webp"
-                        className={styles.imgResponsive}
-                        alt="Logo"
-                        width={75}
-                        height={45}
-                        fetchPriority="high"
-                        priority={true}
-                        loading="eager"
-                      />
-                    </MyLink>
-                  </Menu.Item>
-                </Menu>
+                <Menu className={styles.menuLogo} items={menuItemsLogo} />
               </div>
               <div className={styles.menuRight}>
                 <div className={styles.listMenu}>
@@ -411,140 +585,8 @@ const HeaderComponent = ({
                     defaultSelectedKeys={['4']}
                     selectedKeys={[selectedKeys]}
                     className={styles.horizontalMenu}
-                  >
-                    <Menu.Item key="apps" className={styles.menuItemDetail}>
-                      <Dropdown placement="bottom" overlay={popupSubmenu} arrow>
-                        <MyLink
-                          href="/dashboard"
-                          className={`${styles.menuLink} ${
-                            isActive(currentKey, [
-                              '/dashboard',
-                              '/categories',
-                              '/collections',
-                              '/top-new-apps',
-                              '/delisted-deleted',
-                              '/integrations',
-                              '/dashboard/top-apps',
-                              '/top-reviewed',
-                              '/growth-apps',
-                              '/growth_review',
-                              '/growth_rate',
-                              '/installation_growth_rate',
-                            ])
-                              ? styles.active
-                              : ''
-                          }`}
-                          onClick={() => handleClickMenuItem('/dashboard')}
-                          id="step1"
-                        >
-                          <span style={{ textAlign: 'center' }}>
-                            Apps <CaretDownOutlined style={{ marginLeft: '5px' }} />
-                          </span>
-                        </MyLink>
-                      </Dropdown>
-                    </Menu.Item>
-                    <Menu.Item key="compare-apps" className={styles.menuItemDetail}>
-                      <MyLink
-                        href="/#compare"
-                        className={`${styles.menuLink} ${currentKey === '/#compare' ? styles.active : ''}`}
-                        onClick={() => handleClickMenuItem('/#compare')}
-                      >
-                        Compare Apps
-                      </MyLink>
-                    </Menu.Item>
-                    <Menu.Item key="insights" className={styles.menuItemDetail}>
-                      <Dropdown
-                        placement="bottom"
-                        overlay={insightSubmenu}
-                        arrow
-                        visible={isDropdownVisibleInsights}
-                        onVisibleChange={handleInsightsDropdownVisibleChange}
-                      >
-                        <span
-                          className={`${styles.menuLink} ${
-                            isActive(currentKey, ['/developers', '/dashboard/reviews']) ? styles.active : ''
-                          }`}
-                        >
-                          Insights
-                          <CaretDownOutlined style={{ marginLeft: '5px' }} />
-                        </span>
-                      </Dropdown>
-                    </Menu.Item>
-                    <Menu.Item key="resources" className={styles.menuItemDetail}>
-                      <Dropdown placement="bottom" overlay={resourceSubmenu} arrow>
-                        <span className={`${styles.menuLink} ${currentKey === '/blogs' ? styles.active : ''}`}>
-                          Resources
-                          <CaretDownOutlined style={{ marginLeft: '5px' }} />
-                        </span>
-                      </Dropdown>
-                    </Menu.Item>
-                    <Menu.Item key="watching-apps" className={styles.menuItemDetail}>
-                      <MyLink
-                        href="/watching-apps"
-                        className={`${styles.menuLink} ${currentKey === '/watching-apps' ? styles.active : ''}`}
-                        onClick={() => handleClickMenuItem('/watching-apps')}
-                      >
-                        Watching
-                      </MyLink>
-                    </Menu.Item>
-                    {token && accessStore && (
-                      <Menu.Item key="explore-store" className={styles.menuItemDetail}>
-                        <MyLink
-                          href="/explore-store"
-                          className={`${styles.menuLink} ${currentKey === '/explore-store' ? styles.active : ''}`}
-                          onClick={() => handleClickMenuItem('/explore-store')}
-                        >
-                          Explore Store
-                        </MyLink>
-                      </Menu.Item>
-                    )}
-                    {token && (
-                      <Menu.Item key="my-apps" className={styles.menuItemDetail}>
-                        <Dropdown placement="bottom" overlay={popupMyApp} arrow>
-                          <span className={styles.menuLink} id="step6">
-                            My Apps
-                          </span>
-                        </Dropdown>
-                      </Menu.Item>
-                    )}
-
-                    <Menu.Item key="search" onClick={handleMenuItemClick} className={styles.menuItemSearch}>
-                      {isShowSearch ? (
-                        <Dropdown overlay={listAppsSearch} trigger={['click']} placement="bottom" au>
-                          <Input
-                            placeholder="Application name"
-                            className={styles.searchData}
-                            onChange={onSearchApps}
-                            onClick={(e) => e.stopPropagation()}
-                            suffix={loadingSearch ? <LoadingOutlined /> : <></>}
-                            onPressEnter={(e) => handleSeeAllResults(e.target.value)}
-                          />
-                        </Dropdown>
-                      ) : (
-                        <>
-                          <SearchOutlined
-                            className={styles.searchIcon}
-                            onClick={(e) => {
-                              setIsShowSearch(true);
-                              e.stopPropagation();
-                            }}
-                          />
-                          <div
-                            className={styles.searchText}
-                            onClick={(e) => {
-                              setIsShowSearch(true);
-                              e.stopPropagation();
-                            }}
-                          >
-                            Search
-                          </div>
-                        </>
-                      )}
-                      {isShowSearch && (
-                        <CloseOutlined className={styles.closeIcon} onClick={() => setIsShowSearch(false)} />
-                      )}
-                    </Menu.Item>
-                  </Menu>
+                    items={menuItemsNavbar}
+                  />
                 </div>
               </div>
             </div>

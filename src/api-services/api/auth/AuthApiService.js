@@ -90,13 +90,16 @@ export default class AuthApiService {
   }
 
   static async loginGoogle(state, code) {
-    const response = await CommonCall(
-      `${URL_API}google_login_callback?redirect_url=${DOMAIN}google_login_callback&state=${state}&code=${code}`,
-      {
-        method: 'GET',
-      },
-    );
-    return response;
+    const url = new URL('/api/auth/login-google', window.location.origin);
+    url.searchParams.append('state', state);
+    url.searchParams.append('code', code);
+
+    const response = await fetch(url.toString(), {
+      method: 'GET',
+    });
+
+    const data = await response.json();
+    return data;
   }
 
   static async logoutPage() {
